@@ -50,5 +50,4 @@ export class AxiomLogger extends ConsoleLogger {
         super.log(data);
         AxiomLogger.axiom.ingest(AxiomLogger.dataset, data);
     }
-
 }

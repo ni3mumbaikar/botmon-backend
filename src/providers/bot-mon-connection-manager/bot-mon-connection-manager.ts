@@ -11,7 +11,7 @@ export class BotMonConnectionManager {
     private isConnected: boolean;
     private qr: string;
 
-    constructor(private logger: AxiomLogger) { }
+    constructor(private logger: AxiomLogger) {}
 
     public getisConnected(): boolean {
         return this.isConnected;
@@ -49,7 +49,7 @@ export class BotMonConnectionManager {
                 console.log('opened connection');
             }
             this.qr = update.qr;
-            this.logger.log(this.qr)
+            this.logger.log(this.qr);
             this.isConnected = update.connection === 'open';
         });
 
