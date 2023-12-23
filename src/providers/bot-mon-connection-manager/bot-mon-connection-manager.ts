@@ -4,26 +4,26 @@ import makeWASocket, {
     useMultiFileAuthState,
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
+import { AxiomLogger } from '../axiom-logger/axiom-logger';
 
 @Injectable()
 export class BotMonConnectionManager {
     private isConnected: boolean;
-    private static qr: string;
+    private qr: string;
+
+    constructor(private logger: AxiomLogger) { }
 
     public getisConnected(): boolean {
         return this.isConnected;
     }
 
     public getqr(): string {
-        console.log('QR', BotMonConnectionManager.qr);
-        return BotMonConnectionManager.qr;
+        return this.qr;
     }
 
     public async initialize() {
         const { state, saveCreds } =
             await useMultiFileAuthState('auth_info_baileys');
-        // will use the given state to connect
-        // so if valid credentials are available -- it'll connect without QR
         let sock = makeWASocket({
             printQRInTerminal: true,
             auth: state,
@@ -48,8 +48,9 @@ export class BotMonConnectionManager {
             } else if (connection === 'open') {
                 console.log('opened connection');
             }
-            BotMonConnectionManager.qr = update.qr;
-            this.isConnected = update.isOnline;
+            this.qr = update.qr;
+            this.logger.log(this.qr)
+            this.isConnected = update.connection === 'open';
         });
 
         sock.ev.on('messages.upsert', async (m) => {
