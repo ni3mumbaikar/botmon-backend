@@ -4,6 +4,7 @@ import { Command } from './command.entity';
 import { DatabaseFilter } from '../database/filter/database/database.filter'
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import CommandDto from 'src/dto/command-input.dto';
+import CommandOnlyDto from 'src/dto/command-only.dto';
 
 @Controller('commands')
 @ApiTags('Command')
@@ -28,10 +29,10 @@ export class CommandsController {
     }
 
     @Post('/fetch/byCommand')
-    @ApiBody({ type: CommandDto, description: 'provide command for getting its respective response value' })
+    @ApiBody({ type: CommandOnlyDto, description: 'provide command for getting its respective response value' })
     @ApiOperation({ summary: 'Get response of the command by command name' })
     @ApiResponse({ status: 200, description: 'Get id, command and response of the command' })
-    findResponse(@Body() command: CommandDto) {
+    findResponse(@Body() command: CommandOnlyDto) {
         return this.commandService.findResponse(command);
     }
 

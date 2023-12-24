@@ -1,11 +1,8 @@
-import { Axiom, datasets } from '@axiomhq/js';
+import { Axiom } from '@axiomhq/js';
 import {
     ConsoleLogger,
-    Injectable,
-    Logger,
-    LoggerService,
+    Injectable
 } from '@nestjs/common';
-import { Console } from 'console';
 
 @Injectable()
 export class AxiomLogger extends ConsoleLogger {
