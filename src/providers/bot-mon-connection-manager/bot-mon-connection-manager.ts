@@ -1,17 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { Delete, Injectable, Param } from '@nestjs/common';
 import makeWASocket, {
+    Browsers,
     DisconnectReason,
     useMultiFileAuthState,
 } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import { AxiomLogger } from '../axiom-logger/axiom-logger';
+import * as fs from 'fs';
 
 @Injectable()
 export class BotMonConnectionManager {
     private isConnected: boolean;
     private qr: string;
 
-    constructor(private logger: AxiomLogger) {}
+    constructor(private logger: AxiomLogger) { }
 
     public getisConnected(): boolean {
         return this.isConnected;
@@ -21,13 +23,15 @@ export class BotMonConnectionManager {
         return this.qr;
     }
 
+    async clearCredentials() {
+        await fs.rmSync('./auth_info_baileys', { recursive: true, force: true });
+    }
+
     public async initialize() {
-        const { state, saveCreds } =
-            await useMultiFileAuthState('auth_info_baileys');
+        const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
+        // const waConfig = { version: [2, 2323, 4], auth: state, printQRInTerminal: true, browser: Browsers.ubuntu('Chrome'), }
         let sock = makeWASocket({
-            printQRInTerminal: true,
-            auth: state,
-            defaultQueryTimeoutMs: undefined,
+            version: [2, 2323, 4], auth: state, printQRInTerminal: true, browser: Browsers.ubuntu('Chrome'),
         });
 
         // this will be called as soon as the credentials are updated
@@ -39,27 +43,26 @@ export class BotMonConnectionManager {
                 const shouldReconnect =
                     (lastDisconnect.error as Boom)?.output?.statusCode !==
                     DisconnectReason.loggedOut;
-                console.log(
-                    'connection closed due to ',
-                    lastDisconnect.error,
-                    ', reconnecting ',
-                    shouldReconnect,
-                );
+
+                this.logger.error('connection closed due to ' +
+                    lastDisconnect.error +
+                    ', reconnecting ' +
+                    shouldReconnect)
+
+                this.isConnected = false;
+                if (shouldReconnect) {
+                    this.initialize()
+                }
             } else if (connection === 'open') {
-                console.log('opened connection');
+                this.logger.log('opened connection');
+                this.isConnected = true;
             }
             this.qr = update.qr;
             this.logger.log(this.qr);
-            this.isConnected = update.connection === 'open';
         });
 
         sock.ev.on('messages.upsert', async (m) => {
-            console.log(JSON.stringify(m, undefined, 2));
 
-            console.log('replying to', m.messages[0].key.remoteJid);
-            await sock.sendMessage(m.messages[0].key.remoteJid!, {
-                text: 'Hello there!',
-            });
         });
     }
 }

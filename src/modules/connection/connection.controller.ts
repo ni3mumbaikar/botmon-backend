@@ -1,6 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
 import { ConnectionService } from './connection.service';
-import { BotMonConnectionManager } from 'src/providers/bot-mon-connection-manager/bot-mon-connection-manager';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('connection')
@@ -18,8 +17,23 @@ export class ConnectionController {
 
     @Get('/start/session')
     @ApiOperation({ summary: 'Start new WA session' })
-    @ApiResponse({ status: 200, description: 'Sesion started' })
+    @ApiResponse({ status: 200, description: 'Session started' })
     startSession() {
         return this.connectionService.startSession();
     }
+
+    @Get('/stop/session')
+    @ApiOperation({ summary: 'Stop WA session' })
+    @ApiResponse({ status: 200, description: 'Session stopped' })
+    stopSession() {
+        return this.connectionService.stopSession();
+    }
+
+    @Get('/state/session')
+    @ApiOperation({ summary: 'Get WA session state' })
+    @ApiResponse({ status: 200, description: 'Session state' })
+    getSession() {
+        return this.connectionService.getSession();
+    }
+
 }
