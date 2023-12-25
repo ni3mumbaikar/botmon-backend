@@ -1,4 +1,4 @@
-import { Delete, Injectable, Param } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import makeWASocket, {
     Browsers,
     DisconnectReason,
@@ -7,13 +7,14 @@ import makeWASocket, {
 import { Boom } from '@hapi/boom';
 import { AxiomLogger } from '../axiom-logger/axiom-logger';
 import * as fs from 'fs';
+import { CommandsProcessor } from 'src/modules/commands/provider/commands-processor/commands-processor';
 
 @Injectable()
 export class BotMonConnectionManager {
     private isConnected: boolean;
     private qr: string;
 
-    constructor(private logger: AxiomLogger) { }
+    constructor(private logger: AxiomLogger, private commandsProcessor: CommandsProcessor) { }
 
     public getisConnected(): boolean {
         return this.isConnected;
@@ -28,6 +29,9 @@ export class BotMonConnectionManager {
     }
 
     public async initialize() {
+
+        this.setUpCommands();
+
         const { state, saveCreds } = await useMultiFileAuthState('auth_info_baileys');
         // const waConfig = { version: [2, 2323, 4], auth: state, printQRInTerminal: true, browser: Browsers.ubuntu('Chrome'), }
         let sock = makeWASocket({
@@ -62,7 +66,12 @@ export class BotMonConnectionManager {
         });
 
         sock.ev.on('messages.upsert', async (m) => {
-
+            this.commandsProcessor.genericProcessor(m)
         });
     }
+
+    setUpCommands() {
+        this.commandsProcessor.setUpCommands();
+    }
+
 }

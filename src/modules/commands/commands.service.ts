@@ -10,22 +10,22 @@ export class CommandsService {
 
     constructor(
         @InjectRepository(Command)
-        private usersRepository: Repository<Command>, private logger: AxiomLogger
+        private commandsRepository: Repository<Command>, private logger: AxiomLogger
     ) { }
 
     async createCommand(command: CommandDto) {
-        await this.usersRepository.insert(command).then(() => {
+        await this.commandsRepository.insert(command).then(() => {
             this.logger.log('New Command Added');
             this.logger.logObjectorData([command]);
         });
     }
 
     async findAll() {
-        return await this.usersRepository.find();
+        return await this.commandsRepository.find();
     }
 
     async findResponse(command) {
-        return await this.usersRepository.findOneBy(command)
+        return await this.commandsRepository.findOneBy(command)
     }
 
 }

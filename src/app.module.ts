@@ -8,6 +8,7 @@ import { ConnectionModule } from './modules/connection/connection.module';
 import { DatabaseModule } from './modules/database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommandsModule } from './modules/commands/commands.module';
+import { CommandsProcessor } from './modules/commands/provider/commands-processor/commands-processor';
 
 @Module({
     imports: [ConfigModule.forRoot(), ConnectionModule, DatabaseModule, TypeOrmModule.forRoot({
